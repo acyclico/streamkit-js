@@ -18,40 +18,38 @@ class Streamkit {
   }
 
   createStream(name, endpoint, streamType, frequency, headers) {
-    try {
-      return axios.post(`${HOST}/streams`,
-                        { name: name,
-                          endpoint: endpoint,
-                          type: streamType,
-                          frequency: frequency,
-                          headers: JSON.stringify(typeof(headers) === 'string'
-                                                ? [headers]
-                                                : headers) },
-                        this._headers());
-    } catch(error) {
-      return Promise.reject(error);
-    }      
+    return axios.post(`${HOST}/streams`,
+                      { name: name,
+                        endpoint: endpoint,
+                        type: streamType,
+                        frequency: frequency,
+                        headers: JSON.stringify(typeof(headers) === 'string'
+                                              ? [headers]
+                                              : headers) },
+                      this._headers());
   }
 
   streams() {
-    try {
-      return axios.get(`${HOST}/streams`, this._headers())
-                  .then(response => {
-                    const streams = response.data.streams;
-                    return streams.map(stream => new Stream(stream,
-                                                            this._headers()));
-                  });
-    } catch(error) {
-      return Promise.reject(error);
-    }
+    return axios.get(`${HOST}/streams`, this._headers())
+                .then(
+                  response =>
+                    streams.map(stream => new Stream(response.data.streams,
+                                                     this._headers()))
+                );
+  }
+
+  stream(_stream) {
+    return axios.get(`${HOST}/stream/${_stream}`,
+                     this._headers())
+                .then(
+                  response =>
+                    new Stream(response.data.stream,
+                               this._headers())
+                );
   }
 
   quota() {
-    try {
-      return axios.get(`${HOST}/quota`, this._headers());
-    } catch(error) {
-      return Promise.reject(error);
-    }
+    return axios.get(`${HOST}/quota`, this._headers());
   }
 }
 
