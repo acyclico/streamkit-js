@@ -14,10 +14,10 @@ class Stream {
     this._headers = headers;
   }
 
-  events() {
+  events(tail=0) {
     return new Observable(observer => {
       try {
-        axios.get(`${HOST}/events?stream=${this._name}`,
+        axios.get(`${HOST}/events?stream=${this._name}&tail=${tail}`,
                   { ...this._headers,
                     responseType: 'stream' })
              .then(response => {
