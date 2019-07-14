@@ -6,15 +6,16 @@ const { Observable } = require('rxjs');
 const { HOST } = require('./settings');
 
 class Stream {
-  constructor({ id, name, endpoint, stream_type }, headers) {
+  constructor({ id, name, endpoint, stream_type }, headers, token) {
     this._id = id;
     this._name = name;
     this._endpoint = endpoint;
     this._type = stream_type;
     this._headers = headers;
+    this._token = token;
   }
 
-  events(tail=0) {
+  _eventsNode(tail=0) {
     return new Observable(subscriber => {
       try {
         axios.get(`${HOST}/events?stream=${this._name}&tail=${tail}`,
@@ -44,6 +45,21 @@ class Stream {
         subscriber.complete(error);
       }
     });
+  }
+
+  _eventsBrowser(tail=0) {
+    return new Observable(subscriber => {
+      const eventSource = new EventSource(`${HOST}/events?stream=${this._name}&tail=${tail}&jwt=${this._token}`);
+
+      eventSource.onmessage = (event) => subscriber.next(JSON.parse(event.data));
+      eventSource.onerror = (error) => subscriber.complete(error);
+    });
+  }
+  
+  events(tail=0) {
+    return process.browser
+           ? this._eventsBrowser(tail)
+           : this._eventsNode(tail);
   }
 }
 

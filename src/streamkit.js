@@ -33,9 +33,13 @@ class Streamkit {
     return axios.get(`${HOST}/streams`, this._headers())
                 .then(
                   response =>
-                    streams.map(stream => new Stream(response.data.streams,
-                                                     this._headers()))
+                    response.data
+                            .streams
+                            .map(stream => new Stream(stream,
+                                                      this._headers(),
+                                                      this._token))
                 );
+                  
   }
 
   stream(_stream) {
@@ -44,7 +48,8 @@ class Streamkit {
                 .then(
                   response =>
                     new Stream(response.data.stream,
-                               this._headers())
+                               this._headers(),
+                               this._token)
                 );
   }
 
