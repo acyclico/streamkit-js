@@ -15,19 +15,33 @@ class Stream {
   }
 
   events(tail=0) {
-    return new Observable(observer => {
+    return new Observable(subscriber => {
       try {
         axios.get(`${HOST}/events?stream=${this._name}&tail=${tail}`,
                   { ...this._headers,
                     responseType: 'stream' })
              .then(response => {
                const stream = response.data;
-               
-               stream.on('data', chunk => observer.next(chunk.toString('utf8')));
-               stream.on('complete', completed => observer.complete(completed));
+               let event = '';
+
+               stream.on('data', chunk => {
+                 let event_end = /\n\n/.exec(chunk);
+                 if (event_end) {
+                   event += chunk.slice(0, event_end.index);
+
+                   subscriber.next(
+                     JSON.parse(event.replace(/^event.*\ndata:/, '').trim())
+                   );
+
+                   event = chunk.slice(event_end.index + 2);
+                 } else {
+                   event += chunk;
+                 }
+               });
+               stream.on('complete', completed => subscriber.complete(completed));
              });
       } catch(error) {
-        observer.complete(error);
+        subscriber.complete(error);
       }
     });
   }
