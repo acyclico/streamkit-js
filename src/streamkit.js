@@ -11,13 +11,18 @@ class Streamkit {
   }
 
   _headers() {
-    return {
-      headers: { 'Authorization': 'Bearer ' + this._token
-      }
-    };
+    let headers = {};
+    
+    if (this._token) {
+      headers['Authorization'] = `Bearer: ${this._token}`;
+    }
+    
+    return headers;
   }
 
   createStream(name, endpoint, streamType, frequency, headers) {
+    if (!this._token) throw 'This operation needs a valid token';
+    
     return axios.post(`${HOST}/streams`,
                       { name: name,
                         endpoint: endpoint,
@@ -30,6 +35,8 @@ class Streamkit {
   }
 
   streams() {
+    if (!this._token) throw 'This operation needs a valid token';
+
     return axios.get(`${HOST}/streams`, this._headers())
                 .then(
                   response =>
@@ -43,17 +50,23 @@ class Streamkit {
   }
 
   stream(_stream) {
-    return axios.get(`${HOST}/stream/${_stream}`,
-                     this._headers())
-                .then(
-                  response =>
-                    new Stream(response.data.stream,
-                               this._headers(),
-                               this._token)
-                );
+    if (this._token) {
+      return axios.get(`${HOST}/stream/${_stream}`,
+                       this._headers())
+                  .then(
+                    response =>
+                      new Stream(response.data.stream,
+                                 this._headers(),
+                                 this._token)
+                  );
+    } else {
+      return Promise.resolve(new Stream({ name: _stream }));
+    }
   }
-
+  
   quota() {
+    if (!this._token) throw 'This operation needs a valid token';
+    
     return axios.get(`${HOST}/quota`, this._headers());
   }
 }

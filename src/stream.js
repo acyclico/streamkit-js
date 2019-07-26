@@ -49,7 +49,9 @@ class Stream {
 
   _eventsBrowser(tail=0) {
     return new Observable(subscriber => {
-      const eventSource = new EventSource(`${HOST}/events?stream=${this._name}&tail=${tail}&jwt=${this._token}`);
+      const eventSource = this._token
+                        ? new EventSource(`${HOST}/events?stream=${this._name}&tail=${tail}&jwt=${this._token}`)
+                        : new EventSource(`${HOST}/events?stream=${this._name}&tail=${tail}`);
 
       eventSource.onmessage = (event) => subscriber.next(JSON.parse(event.data));
       eventSource.onerror = (error) => subscriber.complete(error);
