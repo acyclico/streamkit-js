@@ -1,0 +1,36 @@
+{
+  "name": "pollution",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "google-map-react": "^1.1.4",
+    "leaflet": "^1.5.1",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-leaflet": "^2.4.0",
+    "react-leaflet-heatmap-layer": "^2.0.0",
+    "react-scripts": "3.0.1",
+    "streamkit-js": "file:../.."
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

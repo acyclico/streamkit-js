@@ -1,0 +1,13 @@
+.label, .magnitudeSelector {
+    font-size: 1rem;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+}
+
+.magnitudeDetails {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
