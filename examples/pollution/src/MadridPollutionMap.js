@@ -107,16 +107,17 @@ class MadridPollutionMap extends Component {
       return (<div></div>);
     else
       return (
-      <div style={{ display: 'flex' }}>
-        <div style={{ height: '75vh', width: '75vw' }}>
-          <GoogleMapReact
-            bootstrapURLKeys={{ key: 'AIzaSyB6SryPXJIvJZqT048WNRtPF1giiW8UCbg' }}
-            defaultCenter={this.props.center}
-            defaultZoom={this.props.zoom}
-            heatmapLibrary={true}
-            heatmap={heatMapData}
-          >
-          </GoogleMapReact>
+        <div style={{ display: 'flex', flexFlow: 'column', alignItems: 'center' }}>
+          <div style={{ height: '75vh', width: '75vw' }}>
+            <GoogleMapReact
+              bootstrapURLKeys={{ key: 'AIzaSyB6SryPXJIvJZqT048WNRtPF1giiW8UCbg' }}
+              defaultCenter={this.props.center}
+              defaultZoom={this.props.zoom}
+              heatmapLibrary={true}
+              heatmap={heatMapData}
+            >
+            </GoogleMapReact>
+          </div>
           <div className="magnitudeDetails">
             <select value={magnitude}
                     onChange={this.handleMagnitudeChange}
@@ -137,9 +138,9 @@ class MadridPollutionMap extends Component {
               </label>
             </div>
           </div>
+          
         </div>
-      </div>
-    );
+      );
   }
 }
 
