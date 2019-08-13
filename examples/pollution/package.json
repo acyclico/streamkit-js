@@ -1,7 +1,8 @@
 {
-  "name": "pollution",
+  "name": "madrid-pollution",
   "version": "0.1.0",
   "private": true,
+  "main": "src/MadridPollutionMap.js",
   "dependencies": {
     "google-map-react": "^1.1.4",
     "leaflet": "^1.5.1",

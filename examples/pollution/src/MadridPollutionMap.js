@@ -1,13 +1,12 @@
-import React from 'react';
+import React, { Component } from 'react';
 import GoogleMapReact from 'google-map-react';
 import streamkit from 'streamkit-js';
 
-import './App.css';
+import './MadridPollutionMap.css';
 import regions from './regions';
 import magnitudes from './magnitudes';
 
-
-class App extends React.Component {
+class MadridPollutionMap extends Component {
   static defaultProps = {
     center: {
       lat: 40.416775,
@@ -33,6 +32,7 @@ class App extends React.Component {
     stream
       .events()
       .subscribe(event => {
+        if (event.mad_env === undefined) return;
         const datas = event.mad_env.data.split('\n')
               .map(data => data.split(','));
         
@@ -110,6 +110,7 @@ class App extends React.Component {
       <div style={{ display: 'flex' }}>
         <div style={{ height: '100vh', width: '75vw' }}>
           <GoogleMapReact
+            bootstrapURLKeys={{ key: 'AIzaSyB6SryPXJIvJZqT048WNRtPF1giiW8UCbg' }}
             defaultCenter={this.props.center}
             defaultZoom={this.props.zoom}
             heatmapLibrary={true}
@@ -142,4 +143,4 @@ class App extends React.Component {
   }
 }
 
-export default App;
+export default MadridPollutionMap;
