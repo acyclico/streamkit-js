@@ -108,34 +108,34 @@ class MadridPollutionMap extends Component {
     else
       return (
       <div style={{ display: 'flex' }}>
-        <div style={{ height: '100vh', width: '75vw' }}>
+        <div style={{ height: '75vh', width: '75vw' }}>
           <GoogleMapReact
             bootstrapURLKeys={{ key: 'AIzaSyB6SryPXJIvJZqT048WNRtPF1giiW8UCbg' }}
             defaultCenter={this.props.center}
             defaultZoom={this.props.zoom}
             heatmapLibrary={true}
             heatmap={heatMapData}
-            >
-          </GoogleMapReact>
-        </div>
-        <div className="magnitudeDetails">
-          <select value={magnitude}
-                  onChange={this.handleMagnitudeChange}
-                  className="magnitudeSelector"
           >
-            { magnitudeOptions }
-          </select>
-          <div className="hourSelector">
-            <input type="range"
-                   name="hour"
-                   value={this.state.hour}
-                   min="0"
-                   max="23"
-                   onChange={this.handleHourChange}
-            />
-            <label className="label">
-              {this.state.hour} Hour
-            </label>
+          </GoogleMapReact>
+          <div className="magnitudeDetails">
+            <select value={magnitude}
+                    onChange={this.handleMagnitudeChange}
+                    className="magnitudeSelector"
+            >
+              { magnitudeOptions }
+            </select>
+            <div className="hourSelector">
+              <input type="range"
+                     name="hour"
+                     value={this.state.hour}
+                     min="0"
+                     max="23"
+                     onChange={this.handleHourChange}
+              />
+              <label className="label">
+                {this.state.hour} Hour
+              </label>
+            </div>
           </div>
         </div>
       </div>
