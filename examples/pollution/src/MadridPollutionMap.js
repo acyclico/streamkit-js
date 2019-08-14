@@ -108,14 +108,14 @@ class MadridPollutionMap extends Component {
     else
       return (
         <div style={{ display: 'flex', flexFlow: 'column', alignItems: 'center' }}>
-          <div style={{ height: '75vh', width: '75vw' }}>
+          <div style={{ height: '75vh', width: '100vw' }}>
             <GoogleMapReact
               bootstrapURLKeys={{ key: 'AIzaSyB6SryPXJIvJZqT048WNRtPF1giiW8UCbg' }}
               defaultCenter={this.props.center}
               defaultZoom={this.props.zoom}
               heatmapLibrary={true}
               heatmap={heatMapData}
-              options={{ zoomControl: false }}
+              options={{ zoomControl: false, minZoom: this.props.zoom, maxZoom: this.props.zoom }}
             >
             </GoogleMapReact>
           </div>
@@ -134,9 +134,9 @@ class MadridPollutionMap extends Component {
                      max="23"
                      onChange={this.handleHourChange}
               />
-              <label className="label">
-                {this.state.hour} Hour
-              </label>
+              <div className="label">
+                Today, {this.state.hour}h
+              </div>
             </div>
           </div>
           
