@@ -115,6 +115,7 @@ class MadridPollutionMap extends Component {
               defaultZoom={this.props.zoom}
               heatmapLibrary={true}
               heatmap={heatMapData}
+              options={{ zoomControl: false }}
             >
             </GoogleMapReact>
           </div>
