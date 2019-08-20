@@ -17,7 +17,7 @@ class MadridPollutionMap extends Component {
   
   state = {
     measures: {},
-    hour: 0,
+    time: 0,
     magnitude: "08"
   }
 
@@ -27,66 +27,80 @@ class MadridPollutionMap extends Component {
   }
 
   async componentDidMount() {
-    const measures = {};
-    const stream = await this.sk.stream('mad_env');
+    /* mad_env polls data each hour and we will */
+    /* process events for the last days */
+    const maxEvents = 24 * 2,
+          measures = {},
+          stream = await this.sk.stream('mad_env');
+
     stream
-      .events()
+      .events(maxEvents)
       .subscribe(event => {
         if (event.mad_env === undefined) return;
-        const datas = event.mad_env.data.split('\n')
-              .map(data => data.split(','));
-        
+
+        /* Events are retrieved in CSV format */
+        /* and some processing is needed */
+        const datas = event.mad_env
+                           .data.split('\n')
+                           .map(data => data.split(','));
+
         datas.forEach(data => {
-          const regionId = data[0] + data[1] + data[2];
-          const region = regions[regionId];
-          const magnitudeId = data[3];
-          const dataMeasures = data.splice(9);
-
-          dataMeasures.forEach((measure, idx) => {
-            if (idx % 2 === 1) return;
-
-            const mIdx = idx / 2;
-            
-            if (measures[magnitudeId] === undefined)
+          const regionId = data[0] + data[1] + data[2],
+                region = regions[regionId],
+                magnitudeId = data[3],
+                dataMeasures = data.splice(9),
+                date = data.slice(6, 9).join("/");
+          
+          if (measures[magnitudeId] === undefined)
               measures[magnitudeId] = [];
-            if (measures[magnitudeId][mIdx] === undefined)
-              measures[magnitudeId][mIdx] = [];
 
-            measures[magnitudeId][mIdx].push({
-              ...region,
-              weight: parseInt(measure, 10)
-            });            
-          });
+          for (let idx = 0; idx < dataMeasures.length; idx+=2) {
+            if (dataMeasures[idx + 1] === 'N') continue;
+            
+            let measure = dataMeasures[idx];
+            const hour = idx / 2,
+                  timestamp = new Date(date + ` ${hour}:00`);
+            
+            if (measures[magnitudeId][timestamp] === undefined)
+              measures[magnitudeId][timestamp] = [];
+
+            if (
+              measures[magnitudeId][timestamp]
+                .find(i => i.name === region.name) === undefined
+            )
+              measures[magnitudeId][timestamp].push({
+                ...region,
+                weight: parseInt(measure, 10)
+              });
+          }
         });
 
-        this.setState({ measures: measures });
+        this.setState({
+          measures: measures,
+          time: Object.keys(measures[this.state.magnitude]).length - 1
+        });
       });
   }
 
-  handleHourChange = (event) => {
-    this.setState({ hour: event.target.value });
+  handleTimeChange = (event) => {
+    this.setState({ time: event.target.value });
   }
 
   handleMagnitudeChange = (event) => {
     this.setState({ magnitude: event.target.value });
   }
-  
-  render() {
-    const magnitude = this.state.magnitude;
-    const measures = this.state.measures[magnitude]
-                   ? this.state.measures[magnitude][this.state.hour]
-                   : [];
 
-    let maxIntensity = magnitude && this.state.measures[magnitude]
-                     ? Math.max(
-                       ...this.state.measures[magnitude].map(
-                         measures => Math.max(...measures.map(m => m.weight))
-                       )
-                     )
-                     : 0;
-    
-    const heatMapData = {
-  		positions: measures,
+  renderMap(measures) {
+    const maxIntensity =
+          this.state.magnitude && this.state.measures[this.state.magnitude]
+          ? Math.max(
+            ...measures.map(
+              measures => Math.max(...measures.map(m => m.weight))
+            )
+          )
+          : 0;
+    const mapData = {
+  		positions: measures[this.state.time],
 		  options: {
 			  radius: 100,
 			  opacity: 0.7,
@@ -95,53 +109,71 @@ class MadridPollutionMap extends Component {
 		  }
     };
 
-    const magnitudeOptions = Object.keys(magnitudes).map(
-      (magnitude, idx) => (
-        <option key={magnitude} value={magnitude}>
-          { magnitudes[magnitude] }
-        </option>
-      )
+    return (
+      <GoogleMapReact
+        bootstrapURLKeys={{ key: 'AIzaSyB6SryPXJIvJZqT048WNRtPF1giiW8UCbg' }}
+        defaultCenter={this.props.center}
+        defaultZoom={this.props.zoom}
+        heatmapLibrary={true}
+        heatmap={mapData}
+        options={{ zoomControl: false, minZoom: this.props.zoom, maxZoom: this.props.zoom }}
+      >
+      </GoogleMapReact>
     );
+  }
 
-    if (measures.length === 0)
-      return (<div></div>);
-    else
+  renderSelectors(measures, measuresTimes) {
+    const magnitude = this.state.magnitude,
+          magnitudeOptions = Object.keys(magnitudes).map(
+            (magnitude, idx) => (
+              <option key={magnitude} value={magnitude}>
+                { magnitudes[magnitude] }
+              </option>
+            )
+          );
+
+    return (
+      <div className="magnitudeDetails">
+        <select value={magnitude}
+                onChange={this.handleMagnitudeChange}
+                className="magnitudeSelector"
+                >
+          { magnitudeOptions }
+        </select>
+        <div className="eventSelector">
+          <input type="range"
+                 name="time"
+                 value={this.state.time}
+                 min="0"
+                 max={Object.keys(measures).length - 1}
+                 onChange={this.handleTimeChange}
+                 />
+          <div className="label">
+            { new Date(measuresTimes[this.state.time]).toLocaleString() }
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  render() {
+    const magnitude = this.state.magnitude;
+    
+    if (this.state.measures[magnitude]) {
+      const measures = Object.values(this.state.measures[magnitude]),
+            measuresTimes = Object.keys(this.state.measures[magnitude]);
+      
       return (
-        <div style={{ display: 'flex', flexFlow: 'column', alignItems: 'center' }}>
-          <div style={{ height: '75vh', width: '100vw' }}>
-            <GoogleMapReact
-              bootstrapURLKeys={{ key: 'AIzaSyB6SryPXJIvJZqT048WNRtPF1giiW8UCbg' }}
-              defaultCenter={this.props.center}
-              defaultZoom={this.props.zoom}
-              heatmapLibrary={true}
-              heatmap={heatMapData}
-              options={{ zoomControl: false, minZoom: this.props.zoom, maxZoom: this.props.zoom }}
-            >
-            </GoogleMapReact>
+        <div className="container">
+          <div className="mapContainer">
+            { this.renderMap(measures) }
           </div>
-          <div className="magnitudeDetails">
-            <select value={magnitude}
-                    onChange={this.handleMagnitudeChange}
-                    className="magnitudeSelector"
-            >
-              { magnitudeOptions }
-            </select>
-            <div className="hourSelector">
-              <input type="range"
-                     name="hour"
-                     value={this.state.hour}
-                     min="0"
-                     max="23"
-                     onChange={this.handleHourChange}
-              />
-              <div className="label">
-                Today, {this.state.hour}h
-              </div>
-            </div>
-          </div>
-          
+          { this.renderSelectors(measures, measuresTimes) }
         </div>
       );
+    } else {
+      return (<div></div>);
+    }
   }
 }
 

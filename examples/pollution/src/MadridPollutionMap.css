@@ -3,6 +3,17 @@
     width: 100%;
 }
 
+.container {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+}
+
+.mapContainer {
+    height: 75vh;
+    width: 100vw;
+}
+
 .label, .magnitudeSelector {
   font-size: 1rem;
   text-transform: uppercase;
@@ -18,5 +29,10 @@
   align-items: center;
   flex-direction: column;
   padding: 1.5em;
+}
+
+.eventSelector,
+.eventSelector > input {
+    width: 100%;
 }
 
